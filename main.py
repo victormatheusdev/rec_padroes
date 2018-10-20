@@ -5,44 +5,41 @@ from keras.optimizers import SGD
 
 import numpy as np
 import csv
-
-reader = csv.reader(open('subdata.csv','r'), delimiter=',')
+np.random.seed(7) #fixar a semente pra sempre obter os mesmos resultados
+#N sei se funciona perfeitamente com a train_test_split
+from tensorflow.python.client import device_lib
+reader = csv.reader(open('data.csv','r'), delimiter=',')
 
 rows = np.array(list(reader))
-labels = rows[0, 1:-1]
-print(labels)
+labels = rows[1, 1:-1]
 X = rows[2:-1, 1:-1]
 Y = rows[2:-1, -1]
 #print(rows)
 
-
-
-X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, stratify=Y)
-
-
-
-print(X_train)
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, stratify=Y)
 ########## TESTE ################################
 
 model = Sequential()
-# Dense(64) is a fully-connected layer with 64 hidden units.
-# in the first layer, you must specify the expected input data shape:
-# here, 20-dimensional vectors.
-model.add(Dense(64, activation='relu', input_dim=20))
-model.add(Dropout(0.5))
-model.add(Dense(64, activation='relu'))
-model.add(Dropout(0.5))
-model.add(Dense(10, activation='softmax'))
+qnt_entradas = len(labels)
+model.add(Dense(512, input_dim=qnt_entradas, init='uniform', activation='relu'))
 
-sgd = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
-model.compile(loss='categorical_crossentropy',
-              optimizer=sgd,
-              metrics=['accuracy'])
+model.add(Dense(1024, init='uniform', activation='relu'))
+model.add(Dense(1024, init='uniform', activation='relu'))
+model.add(Dense(1024, init='uniform', activation='relu'))
+model.add(Dense(1024, init='uniform', activation='relu'))
+model.add(Dense(1024, init='uniform', activation='relu'))
 
-model.fit(X_train, Y_train,
-          epochs=20,
-          batch_size=128)
-score = model.evaluate(X_test, Y_test, batch_size=128)
+model.add(Dense(512, init='uniform', activation='relu'))
 
+
+model.add(Dense(1, activation='sigmoid'))
+
+
+
+model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy']) #adam = descida do gradiente
+model.fit(X_train, Y_train, nb_epoch=50, batch_size=192)
+scores = model.evaluate(X_test, Y_test)
+print("%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
+print(qnt_entradas)
 #train_test_split()
 #print(labels)
