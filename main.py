@@ -18,6 +18,7 @@ Y = rows[2:-1, -1]
 
 
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, stratify=Y)
+X_train, X_validation, Y_train, Y_validation = train_test_split(X_train, Y_train, test_size=0.2, stratify=Y)
 
 
 
